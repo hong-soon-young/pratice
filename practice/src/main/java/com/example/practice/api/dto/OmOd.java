@@ -6,15 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Table;
 
-import com.example.practice.api.exception.OrderCommonComponent;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,12 +24,7 @@ import lombok.With;
 @Table("om_od")
 public class OmOd implements Serializable , Persistable<String> {
 	private static final long serialVersionUID = -5793348114310316331L;
-	
-	@Transient
-	@Autowired
-	@JsonIgnore
-	private OrderCommonComponent orderCommonComponent;
-	
+		
 	@Id
 	private String odNo;
 	private String mbNo;

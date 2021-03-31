@@ -3,13 +3,11 @@ package com.example.practice.api.dto;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Table;
 
-import com.example.practice.api.exception.OrderCommonComponent;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.AllArgsConstructor;
@@ -22,9 +20,6 @@ import lombok.NoArgsConstructor;
 @Table("om_od_dtl")
 public class OmOdDtl implements Serializable , Persistable<String> , Cloneable {
 	private static final long serialVersionUID = -5200824753588401614L;
-	
-	@Autowired
-	private OrderCommonComponent orderCommonComponent;
 	
 	@Id
 	private String odNo;
