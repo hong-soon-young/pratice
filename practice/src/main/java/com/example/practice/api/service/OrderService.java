@@ -136,22 +136,21 @@ public class OrderService {
 		omOd.setClmNo(orderCommon.getClmNo(omOd.getOdNo()));
 		
 		Flux<OmOdDtl> cudTargetOmOdDtlList = Flux.fromIterable(clmTargetOmOdDtlList)
-							.flatMap(oodl -> 
-								orderCommon.getOrderDetailFindByOdNoOdSeqOdProcSeq(oodl).flatMap(oodt -> {
-									OmOdDtl omOdDtlClone = oodt.clone();
-									BeanUtils.copyProperties(omOdDtlClone, oodl, "odQty");
-									oodl.setRegist(true);
-									oodl.setOdTypCd("20");
-									oodl.setProcSeq(oodl.getProcSeq() + 1);
+							.flatMap(clmDl -> 
+								orderCommon.getOrderDetailFindByOdNoOdSeqOdProcSeq(clmDl).flatMap(orgDl -> {
+									OmOdDtl omOdDtlClone = orgDl.clone();
+									BeanUtils.copyProperties(omOdDtlClone, orgDl, "odQty");
+									clmDl.setRegist(true);
+									clmDl.setOdTypCd("20");
+									clmDl.setProcSeq(clmDl.getProcSeq() + 1);
 									
-									oodt.setCnclQty(oodl.getOdQty());
-									oodt.setClmNo(omOd.getClmNo());
+									orgDl.setCnclQty(clmDl.getOdQty());
+									orgDl.setClmNo(omOd.getClmNo());
 																			
-									return Mono.just(oodt);
+									return Mono.just(orgDl);
 								}));
 		
 		Flux.concat(cudTargetOmOdDtlList, Flux.just(clmTargetOmOdDtlList));
-		
 		Flux<OmOdDtl> omOdDtl = cudTargetOmOdDtlList.flatMap(oodl -> {
 			return orderCommon.registOmOdDtl(oodl);
 		});
@@ -165,18 +164,18 @@ public class OrderService {
 		List<OmOdFvrDtl> clmTargetOmOdFvrDtlList = omOd.getOmOdFvrDtlList();
 		
 		Flux<OmOdFvrDtl> cudTargetOmOdFvrDtlList = Flux.fromIterable(clmTargetOmOdFvrDtlList)
-				.flatMap(oofvr -> 
-					orderCommon.getOrderFavorDetailListFvlObject(oofvr).flatMap(oofd -> {
-						OmOdFvrDtl omOdFvrDtlClone = oofd.clone();
-						BeanUtils.copyProperties(omOdFvrDtlClone, oofvr);
-						oofvr.setRegist(true);
-						oofvr.setOdFvrDvsCd("CNCL");
-						oofvr.setProcSeq(orderCommon.getProcSeq(omOd.getOmOdDtlList(), oofvr));
-						oofd.setCnclQty(oofvr.getAplyQty());
-						oofd.setClmNo(omOd.getClmNo());
+				.flatMap(clmFvr -> 
+					orderCommon.getOrderFavorDetailListFvlObject(clmFvr).flatMap(orgFvr -> {
+						OmOdFvrDtl omOdFvrDtlClone = orgFvr.clone();
+						BeanUtils.copyProperties(omOdFvrDtlClone, clmFvr, "aplyQty");
+						clmFvr.setRegist(true);
+						clmFvr.setOdFvrDvsCd("CNCL");
+						clmFvr.setProcSeq(orderCommon.getProcSeq(omOd.getOmOdDtlList(), clmFvr));
+						orgFvr.setCnclQty(clmFvr.getAplyQty());
+						orgFvr.setClmNo(omOd.getClmNo());
 																
-						clmTargetOmOdFvrDtlList.add(oofd);
-						return Mono.just(oofd);
+						clmTargetOmOdFvrDtlList.add(orgFvr);
+						return Mono.just(orgFvr);
 					}));
 		
 		Flux.concat(cudTargetOmOdFvrDtlList, Flux.just(clmTargetOmOdFvrDtlList));

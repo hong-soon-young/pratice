@@ -109,7 +109,7 @@ public class OrderCommon {
 		return String.valueOf(Integer.parseInt(getOrderDetailListFindByOdNo(odNo).map(OmOdDtl::getClmNo)
 				.reduce((t1 , t2) -> {
 					return t1.compareTo(t2) > 0 || t1.equals(t2) ? t1 : t2;	
-				}).toString() + 1));
+				}).toString() + 1));		
 	}
 	
 	public int getProcSeq(List<OmOdDtl> omOdDtlList, OmOdFvrDtl omOdFvrDtl) {
