@@ -12,6 +12,7 @@ import reactor.core.publisher.Mono;
 public interface OmOdFvrDtlRepository extends ReactiveCrudRepository<OmOdFvrDtl , Integer> {
 	 public Flux<OmOdFvrDtl> findAll();
 	 public Flux<OmOdFvrDtl> findByOdNo(String odNo);
+	 public Flux<OmOdFvrDtl> findByOdFvrNo(String odFvrNo);
 	 public Flux<OmOdFvrDtl> findByOdNoAndOdSeqAndProcSeq(String odNo , int odSeq, int procSeq);
 	 
 	 public Mono<OmOdFvrDtl> save(OmOdFvrDtl omOdFvrDtl);

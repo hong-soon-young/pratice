@@ -11,7 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.practice.api.component.OrderCommon;
 import com.example.practice.api.dto.OmOd;
 import com.example.practice.api.dto.OmOdDtl;
+import com.example.practice.api.dto.OmOdDtlFvrDtlRequest;
+import com.example.practice.api.dto.OmOdDtlFvrDtlResponse;
 import com.example.practice.api.dto.OmOdFvrDtl;
+import com.example.practice.api.repository.OrderRepositoryDataBaseClient;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -21,6 +24,8 @@ import reactor.core.publisher.Mono;
 public class OrderService {	
 	@Autowired
 	private OrderCommon orderCommon;
+	@Autowired
+	private OrderRepositoryDataBaseClient orderRepositoryDataBaseClient;
 	
 	//주문 전체 조회
 	public Flux<OmOd> getAllOrderList() {
@@ -50,11 +55,18 @@ public class OrderService {
 				.flatMap(this::cancelOmOdFvrDtl);
 	}
 	
+	//datebaseclient 조회
+	public Flux<OmOd> getOrderListClient(OmOdDtlFvrDtlRequest omOdDtlFvrDtlRequest) {
+		Flux<OmOdDtlFvrDtlResponse> omOdDtlFvrDtlResponse = orderRepositoryDataBaseClient.findOmOdDtlFvrDtl(omOdDtlFvrDtlRequest);
+		return getOmOdCertainClientQuery(omOdDtlFvrDtlResponse);
+	}
+	
 	public Flux<OmOd> getAllOrderListMain() {
 		Flux<OmOd> orderDetailListByOmOdFlux = getOrderDetailListByOmOdFlux();		
 		return getOrderFavorDetailListByOmOdFlux(orderDetailListByOmOdFlux);
 	}
 	
+
 	public Mono<OmOd> getOrderDetailListByOdNoMono(OmOd omOd) {
 		return Mono.just(omOd)
 				   .zipWith(orderCommon.getOrderDetailListFindByOdNo(omOd.getOdNo()).collectList())
@@ -91,6 +103,22 @@ public class OrderService {
 													   .collectList());
 		
 		return Flux.zip(omOdFlux, omOdFvrDtlFlux , (t1 , t2) ->  t1.withOmOdFvrDtlList(t2));
+	}
+	
+	public Flux<OmOd> getOmOdCertainClientQuery(Flux<OmOdDtlFvrDtlResponse> omOdDtlFvrDtlResponse) {
+		Flux<OmOd> omOd = omOdDtlFvrDtlResponse.groupBy(OmOdDtlFvrDtlResponse::getOdNo)
+											   .flatMap(oo -> orderCommon.getOmOd(oo.key()));
+
+		Flux<OmOdDtl> omOdDtl = omOdDtlFvrDtlResponse.flatMap(oofd -> orderCommon.getOrderDetailFindByOdNoOdSeqOdProcSeq(setRequestOmOdDtl(oofd)))
+													 .distinct();
+		
+		Flux<OmOdFvrDtl> omOdFvrDtl = omOdDtlFvrDtlResponse.groupBy(OmOdDtlFvrDtlResponse::getOdFvrNo)
+														   .flatMap(oofd -> orderCommon.getOrderFavorDetailListByOdFvrNo(oofd.key()));
+		
+		return omOd.zipWith(omOdDtl.collectList())
+				   .map(assemble -> assemble.getT1().withOmOdDtlList(assemble.getT2()))
+				   .zipWith(omOdFvrDtl.collectList())
+				   .map(assemble -> assemble.getT1().withOmOdFvrDtlList(assemble.getT2()));
 	}
 	
 	public Mono<OmOd> registOmOd(OmOd omOd) {
@@ -187,5 +215,12 @@ public class OrderService {
 		return Mono.just(omOd)
 				   .zipWith(omOdFvrDtl.collectList())
 				   .map(assemble -> assemble.getT1().withOmOdFvrDtlList(assemble.getT2()));
+	}
+	
+	public OmOdDtl setRequestOmOdDtl(OmOdDtlFvrDtlResponse omOdDtlFvrDtlResponse) {
+		OmOdDtl omOdDtl = new OmOdDtl();
+		BeanUtils.copyProperties(omOdDtlFvrDtlResponse, omOdDtl);
+		
+		return omOdDtl;
 	}
 }

@@ -20,6 +20,7 @@ public class OrderRouter extends DelegatingWebFluxConfiguration {
 					.GET("/getOrderListOneMono/{odNo}/{odTypCd}", orderHandler::getOrderListOneMono)
 					.POST("/registOrder", orderHandler::registOrder)
 					.POST("/cancelOrder", orderHandler::cancelOrder)
+					.GET("/getOrderListClient/{odNo}/{odTypCd}/{dcTnnoCd}", orderHandler::getOrderListClient)
 				  ).build();
 	  }
 }

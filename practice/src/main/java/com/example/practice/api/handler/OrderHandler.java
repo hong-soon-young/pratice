@@ -6,6 +6,7 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import com.example.practice.api.dto.OmOd;
+import com.example.practice.api.dto.OmOdDtlFvrDtlRequest;
 import com.example.practice.api.service.OrderService;
 
 import reactor.core.publisher.Flux;
@@ -41,10 +42,19 @@ public class OrderHandler {
 	
 	public Mono<ServerResponse> cancelOrder(ServerRequest request) {
 		OmOd omod = new OmOd().setOmOd();
-		omod.setOdNo("20210330936569");
 		
 		Mono<OmOd> cancelOrder = orderService.cancelOrder(omod);
 		return ServerResponse.ok().body(cancelOrder, OmOd.class);
 	}
-
+	
+	public Mono<ServerResponse> getOrderListClient(ServerRequest request) {
+		OmOdDtlFvrDtlRequest omOdDtlFvrDtlRequest = OmOdDtlFvrDtlRequest.builder()
+													.odNo(request.pathVariable("odNo"))
+													.odTypCd(request.pathVariable("odTypCd"))
+													.dcTnnoCd(request.pathVariable("dcTnnoCd"))
+													.build();
+		
+		Flux<OmOd> getOrderListOne = orderService.getOrderListClient(omOdDtlFvrDtlRequest);
+		return ServerResponse.ok().body(getOrderListOne, OmOd.class);
+	}	
 }

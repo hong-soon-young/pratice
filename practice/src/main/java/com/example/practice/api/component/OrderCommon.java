@@ -63,6 +63,10 @@ public class OrderCommon {
 	public Flux<OmOdFvrDtl> getOrderFavorDetailListByOdNo(String odNo) {
 		return omOdFvrDtlRepository.findByOdNo(odNo);
 	}
+	
+	public Flux<OmOdFvrDtl> getOrderFavorDetailListByOdFvrNo(String odFvrNo) {
+		return omOdFvrDtlRepository.findByOdFvrNo(odFvrNo);
+	}
 		
 	public Flux<OmOdFvrDtl> getOrderFavorDetailListByOdNoOdSeqOdProcSeq(String odNo , int odSeq , int procSeq) {
 		return omOdFvrDtlRepository.findByOdNoAndOdSeqAndProcSeq(odNo, odSeq, procSeq);
